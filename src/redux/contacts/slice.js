@@ -60,7 +60,7 @@ const contactsSlice = createSlice({
         state.items = [];
         state.error = null;
         state.isLoading = false;
-      }),
+      })
 });
 
 export const contactsReducer = contactsSlice.reducer;
