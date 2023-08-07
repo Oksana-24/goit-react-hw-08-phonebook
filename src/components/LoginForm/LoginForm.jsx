@@ -1,27 +1,52 @@
+import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { logIn } from 'redux/auth/operations';
+
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+
+const schema = yup.object({
+  email: yup
+    .string()
+    .email('You must provide a valid email adress')
+    .required('Email adress is required'),
+  password: yup.string().min(7).required(),
+});
 
 export const LoginForm = () => {
   const dispatch = useDispatch();
 
-  const handleSubmit = e => {
-    e.preventDefault();
-    const form = e.currentTarget;
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm({
+    resolver: yupResolver(schema),
+  });
+
+  const onSubmit = data => {
     dispatch(
       logIn({
-        email: form.elements.email.value,
-        password: form.elements.password.value,
+        email: data.email,
+        password: data.password,
       })
     );
-    form.reset();
+    reset();
   };
 
   return (
-    <form onSubmit={handleSubmit} autoComplete="off">
+    <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
       <label>
         Login
-        <input type="email" name="email" placeholder="Email" />
-        <input type="password" name="password" placeholder="Password" />
+        <input type="email" {...register('email')} placeholder="Email" />
+        {errors.email && <p>{errors.email?.message}</p>}
+        <input
+          type="password"
+          {...register('password')}
+          placeholder="Password"
+        />
+        {errors.password && <p>{errors.password?.message}</p>}
       </label>
       <button type="submit">Log In</button>
     </form>
